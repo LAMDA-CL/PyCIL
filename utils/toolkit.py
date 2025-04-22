@@ -47,7 +47,7 @@ def accuracy(y_pred, y_true, nb_old, increment=10):
     )
 
     # Grouped accuracy
-    for class_id in range(0, np.max(y_true), increment):
+    for class_id in range(0, np.max(y_true)+1, increment):
         idxes = np.where(
             np.logical_and(y_true >= class_id, y_true < class_id + increment)
         )[0]
