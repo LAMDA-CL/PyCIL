@@ -60,6 +60,7 @@ Welcome to PyCIL, perhaps the toolbox for class-incremental learning with the **
 
 
 ## What's New
+- [2026-01]🌟 We have released [C3Box](https://github.com/LAMDA-CL/C3Box), a CLIP-based Class-Incremental Learning Toolbox. Have a try!
 - [2025-07]🌟 Check out our [latest work](https://arxiv.org/abs/2503.08510) on class-incremental learning with CLIP (**ICCV 2025**)!
 - [2025-07]🌟 Check out our [latest work](https://arxiv.org/abs/2508.08165) on pre-trained model-based class-incremental learning (**ICCV 2025**)!
 - [2025-07]🌟 Check out our [latest work](https://openreview.net/forum?id=dwjwvTwV3V&noteId=HVZe95quYK) on domain-incremental learning with PTM (**ICML 2025**)!
