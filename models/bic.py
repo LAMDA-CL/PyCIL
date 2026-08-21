@@ -115,7 +115,7 @@ class BiC(BaseLearner):
                     else:
                         loss = clf_loss
                 elif stage == "bias_correction":
-                    loss = F.cross_entropy(torch.softmax(logits, dim=1), targets)
+                    loss = F.cross_entropy(logits, targets)
                 else:
                     raise NotImplementedError()
 
