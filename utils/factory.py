@@ -15,6 +15,9 @@ def get_model(model_name, args):
     elif name == "ewc":
         from models.ewc import EWC
         return EWC(args)
+    elif name == "iewc":
+        from models.iewc import IEWC
+        return IEWC(args)
     elif name == "wa":
         from models.wa import WA
         return WA(args)

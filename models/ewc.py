@@ -36,6 +36,7 @@ class EWC(BaseLearner):
     def __init__(self, args):
         super().__init__(args)
         self.fisher = None
+        self.lamda = lamda
         self._network = IncrementalNet(args, False)
 
     def after_task(self):
@@ -173,7 +174,7 @@ class EWC(BaseLearner):
                     logits[:, self._known_classes :], targets - self._known_classes
                 )
                 loss_ewc = self.compute_ewc()
-                loss = loss_clf + lamda * loss_ewc
+                loss = loss_clf + self.lamda * loss_ewc
 
                 optimizer.zero_grad()
                 loss.backward()
