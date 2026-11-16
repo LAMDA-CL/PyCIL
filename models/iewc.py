@@ -14,8 +14,9 @@ samples barely count. IEWC divides each per-sample term by that scale:
 
 where r_n is the gradient of the per-sample loss w.r.t. the logits,
 tau = kappa * median{s_n : s_n > 0} is a task-relative damping, and h_n are
-aggregation weights with mean one ("uniform": h_n = 1, or "rdw": residual
-diversity weighting, see ResidualDiversityWeights). The estimate is invariant
+aggregation weights with mean one ("uniform": h_n = 1, "rdw": residual
+diversity weighting, see ResidualDiversityWeights, or a callable
+(x, y, flat_grad) -> non-negative weight, mean-normalized). The estimate is invariant
 to a global rescaling of the loss.
 
 Differences from models/ewc.py:
@@ -41,7 +42,7 @@ from models.ewc import EWC
 
 lamda = 1
 kappa = 1e-2
-weighting = "uniform"  # "uniform" or "rdw"
+weighting = "uniform"  # "uniform", "rdw", or a callable (x, y, flat_grad) -> weight
 rdw_max_basis = 64
 
 
@@ -96,7 +97,10 @@ class IEWC(EWC):
         self.weighting = args.get("weighting", weighting)
         self.rdw_max_basis = args.get("rdw_max_basis", rdw_max_basis)
         self.output_metric = args.get("output_metric", None)
-        assert self.weighting in ("uniform", "rdw"), "Unknown weighting."
+        assert callable(self.weighting) or self.weighting in (
+            "uniform",
+            "rdw",
+        ), "Unknown weighting."
 
     def per_sample_loss(self, logits, targets):
         return F.cross_entropy(logits, targets, reduction="none")
@@ -141,14 +145,19 @@ class IEWC(EWC):
                 logits = self._network(x.unsqueeze(0).to(self._device))["logits"]
                 loss = self.per_sample_loss(logits, y.view(1).to(self._device))
                 loss.sum().backward()
-                if rdw is not None:
-                    flat = [
-                        p.grad.reshape(-1)
-                        if p.grad is not None
-                        else torch.zeros_like(p).reshape(-1)
-                        for p in params.values()
-                    ]
-                    weight = rdw(torch.cat(flat))
+                if rdw is not None or callable(self.weighting):
+                    flat = torch.cat(
+                        [
+                            p.grad.reshape(-1)
+                            if p.grad is not None
+                            else torch.zeros_like(p).reshape(-1)
+                            for p in params.values()
+                        ]
+                    )
+                    if rdw is not None:
+                        weight = rdw(flat)
+                    else:
+                        weight = float(self.weighting(x, y, flat))
                 else:
                     weight = 1.0
                 weights.append(weight)
